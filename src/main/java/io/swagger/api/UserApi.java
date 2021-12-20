@@ -6,6 +6,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Product;
+import io.swagger.model.UserBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -32,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-18T16:54:35.582Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
 @Validated
 public interface UserApi {
 
@@ -44,7 +45,7 @@ public interface UserApi {
     @RequestMapping(value = "/user",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "UserID" ,required=true,schema=@Schema()) @RequestHeader(value="UserID", required=true) Integer userID, @Parameter(in = ParameterIn.HEADER, description = "user password" ,schema=@Schema()) @RequestHeader(value="password", required=false) String password);
+    ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
 
 
     @Operation(summary = "", description = "update user backet", tags={  })
@@ -57,7 +58,7 @@ public interface UserApi {
     @RequestMapping(value = "/user",
         consumes = { "application/json" }, 
         method = RequestMethod.PATCH)
-    ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<ShopOwnerAPIYamlcomponentsschemasProduct> body);
+    ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body);
 
 
     @Operation(summary = "", description = "Create new user", tags={  })
@@ -68,17 +69,19 @@ public interface UserApi {
     @RequestMapping(value = "/user",
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody Object body);
+    ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body);
 
 
     @Operation(summary = "", description = "Update user information", tags={  })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "OK"),
         
-        @ApiResponse(responseCode = "401", description = "Unauthorized") })
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        
+        @ApiResponse(responseCode = "403", description = "Forbidden") })
     @RequestMapping(value = "/user",
         method = RequestMethod.PUT)
-    ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="phone", required=false) String phone, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="city", required=false) String city, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="country", required=false) String country, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="house", required=false) String house, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="flat", required=false) String flat, @Parameter(in = ParameterIn.HEADER, description = "=" ,schema=@Schema()) @RequestHeader(value="new email", required=false) String newEmail);
+    ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="phone", required=false) String phone, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="city", required=false) String city, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="country", required=false) String country, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="house", required=false) String house, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="flat", required=false) String flat, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new email", required=false) String newEmail, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new password", required=false) String newPassword);
 
 }
 

@@ -1,5 +1,6 @@
 package io.swagger;
 
+import io.swagger.api.DataBase;
 import io.swagger.configuration.LocalDateConverter;
 import io.swagger.configuration.LocalDateTimeConverter;
 
@@ -28,6 +29,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
     }
 
     public static void main(String[] args) throws Exception {
+        new DataBase();
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
 

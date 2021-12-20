@@ -17,7 +17,7 @@ import javax.validation.constraints.*;
  */
 @Schema(description = "Profile user with address and basket of products")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-18T16:54:35.582Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
 
 
 public class User   {
@@ -34,14 +34,14 @@ public class User   {
   @JsonProperty("address")
   private Address address = null;
 
-  @JsonProperty("id")
-  private Integer id = null;
-
   @JsonProperty("phone")
   private String phone = null;
 
   @JsonProperty("email")
   private String email = null;
+
+  @JsonProperty("id")
+  private Integer id = null;
 
   public User name(String name) {
     this.name = name;
@@ -131,26 +131,6 @@ public class User   {
     this.address = address;
   }
 
-  public User id(Integer id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * Get id
-   * @return id
-   **/
-  @Schema(required = true, description = "")
-      @NotNull
-
-    public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
   public User phone(String phone) {
     this.phone = phone;
     return this;
@@ -190,6 +170,25 @@ public class User   {
     this.email = email;
   }
 
+  public User id(Integer id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * Get id
+   * @return id
+   **/
+  @Schema(description = "")
+  
+    public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -204,14 +203,14 @@ public class User   {
         Objects.equals(this.surname, user.surname) &&
         Objects.equals(this.basket, user.basket) &&
         Objects.equals(this.address, user.address) &&
-        Objects.equals(this.id, user.id) &&
         Objects.equals(this.phone, user.phone) &&
-        Objects.equals(this.email, user.email);
+        Objects.equals(this.email, user.email) &&
+        Objects.equals(this.id, user.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, surname, basket, address, id, phone, email);
+    return Objects.hash(name, surname, basket, address, phone, email, id);
   }
 
   @Override
@@ -223,9 +222,9 @@ public class User   {
     sb.append("    surname: ").append(toIndentedString(surname)).append("\n");
     sb.append("    basket: ").append(toIndentedString(basket)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -6,6 +6,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Product;
+import io.swagger.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -32,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-18T16:54:35.582Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
 @Validated
 public interface ProductApi {
 
@@ -44,7 +45,7 @@ public interface ProductApi {
     @RequestMapping(value = "/product",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Product>> getProduct(@Parameter(in = ParameterIn.HEADER, description = "Name" ,schema=@Schema()) @RequestHeader(value="name", required=false) String name, @Parameter(in = ParameterIn.HEADER, description = "Min Price" ,schema=@Schema()) @RequestHeader(value="minPrice", required=false) Integer minPrice, @Parameter(in = ParameterIn.HEADER, description = "Max Price" ,schema=@Schema()) @RequestHeader(value="maxPrice", required=false) Integer maxPrice, @Parameter(in = ParameterIn.HEADER, description = "ID of company" ,schema=@Schema()) @RequestHeader(value="companyID", required=false) Integer companyID, @Parameter(in = ParameterIn.HEADER, description = "Count of products" ,schema=@Schema()) @RequestHeader(value="count", required=false) Integer count, @Parameter(in = ParameterIn.HEADER, description = "Product ID" ,schema=@Schema()) @RequestHeader(value="productID", required=false) Integer productID);
+    ResponseEntity<List<Product>> getProduct(@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="name", required=false) String name, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="minPrice", required=false) Integer minPrice, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="maxPrice", required=false) Integer maxPrice, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="companyID", required=false) Integer companyID, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="count", required=false) Integer count, @Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="productID", required=false) Integer productID);
 
 
     @Operation(summary = "", description = "Order products by user", tags={  })
@@ -55,8 +56,9 @@ public interface ProductApi {
         
         @ApiResponse(responseCode = "401", description = "Unauthorized") })
     @RequestMapping(value = "/product",
+        consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "User ID" ,schema=@Schema()) @RequestHeader(value="UserID", required=false) Integer userID, @Parameter(in = ParameterIn.HEADER, description = "user password" ,schema=@Schema()) @RequestHeader(value="password", required=false) String password);
+    ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "User ID" ,required=true,schema=@Schema()) @RequestHeader(value="UserID", required=true) Integer userID, @Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody User body);
 
 }
 

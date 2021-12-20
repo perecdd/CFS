@@ -1,7 +1,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Product;
-import io.swagger.model.ShopOwnerAPIYamlcomponentsschemasProduct;
+import io.swagger.model.UserBody;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,10 +30,11 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-18T16:54:35.582Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
 @RestController
 public class UserApiController implements UserApi {
 
@@ -49,7 +50,7 @@ public class UserApiController implements UserApi {
         this.request = request;
     }
 
-    public ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "UserID" ,required=true,schema=@Schema()) @RequestHeader(value="UserID", required=true) Integer userID,@Parameter(in = ParameterIn.HEADER, description = "user password" ,schema=@Schema()) @RequestHeader(value="password", required=false) String password) {
+    public ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -63,17 +64,64 @@ public class UserApiController implements UserApi {
         return new ResponseEntity<List<Product>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<ShopOwnerAPIYamlcomponentsschemasProduct> body) {
+    public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody Object body) {
+    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body) {
         String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            DataBase.statement.execute("SELECT id,\n" +
+                    "       email,\n" +
+                    "       name,\n" +
+                    "       surname,\n" +
+                    "       phone,\n" +
+                    "       city,\n" +
+                    "       country,\n" +
+                    "       street,\n" +
+                    "       house,\n" +
+                    "       flat\n" +
+                    "  FROM users WHERE email == '" + body.getEmail() + "';");
+            ResultSet rs = DataBase.statement.getResultSet();
+
+            if(!rs.next()) {
+                System.out.println("Add User to DB");
+                DataBase.statement.execute("INSERT INTO users (\n" +
+                        "                      email,\n" +
+                        "                      name,\n" +
+                        "                      surname,\n" +
+                        "                      phone,\n" +
+                        "                      city,\n" +
+                        "                      country,\n" +
+                        "                      street,\n" +
+                        "                      house,\n" +
+                        "                      flat\n" +
+                        "                  )\n" +
+                        "                  VALUES (\n" +
+                        "                      '" + body.getEmail() + "',\n" +
+                        "                      '" + body.getName() + "',\n" +
+                        "                      '" + body.getSurname() + "',\n" +
+                        "                      '" + body.getPhone() + "',\n" +
+                        "                      '" + body.getAddress().getCity() + "',\n" +
+                        "                      '" + body.getAddress().getCountry() + "',\n" +
+                        "                      '" + body.getAddress().getStreet() + "',\n" +
+                        "                      '" + body.getAddress().getHouse() + "',\n" +
+                        "                      '" + body.getAddress().getFlat() + "'\n" +
+                        "                  );\n");
+            }
+            else{
+                return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="phone", required=false) String phone,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="city", required=false) String city,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="country", required=false) String country,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="house", required=false) String house,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="flat", required=false) String flat,@Parameter(in = ParameterIn.HEADER, description = "=" ,schema=@Schema()) @RequestHeader(value="new email", required=false) String newEmail) {
+    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="phone", required=false) String phone,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="city", required=false) String city,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="country", required=false) String country,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="house", required=false) String house,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="flat", required=false) String flat,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new email", required=false) String newEmail,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new password", required=false) String newPassword) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }

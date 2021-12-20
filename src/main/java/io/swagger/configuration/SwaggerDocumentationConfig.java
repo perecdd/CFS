@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-18T16:54:35.582Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
 @Configuration
 public class SwaggerDocumentationConfig {
 
@@ -35,7 +35,7 @@ public class SwaggerDocumentationConfig {
             .license("")
             .licenseUrl("http://unlicense.org")
             .termsOfServiceUrl("")
-            .version("1.0.3")
+            .version("1.0.6")
             .contact(new Contact("","", ""))
             .build();
     }
@@ -47,7 +47,7 @@ public class SwaggerDocumentationConfig {
                 .title("MarketplaceAPI")
                 .description("API for back-end of marketplace")
                 .termsOfService("")
-                .version("1.0.3")
+                .version("1.0.6")
                 .license(new License()
                     .name("")
                     .url("http://unlicense.org"))
