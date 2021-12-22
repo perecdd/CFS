@@ -7,23 +7,48 @@ public class DataBase {
     public static Statement statement;
 
     public DataBase() throws Exception {
-        Class.forName("org.sqlite.JDBC");
-        connection = DriverManager.getConnection("jdbc:sqlite:UsersDB");
+        Class.forName("org.postgresql.Driver");
+        //connection = DriverManager.getConnection("jdbc:sqlite:UsersDB");
+        StringBuilder url = new StringBuilder();
+        url.
+                append("jdbc:postgresql://").  //db type
+                append("localhost:").          //host name
+                append("5432/").               //port
+                append("postgres?").             //db name
+                append("user=postgres&").      //login
+                append("password=postgres");     //password
+
+        connection = DriverManager.getConnection(url.toString());
         statement = connection.createStatement();
-        System.out.println("DataBase is find!");
+        statement.execute("DO\n" +
+                "$$\n" +
+                "BEGIN\n" +
+                "  IF NOT EXISTS (SELECT *\n" +
+                "                        FROM pg_type typ\n" +
+                "                             INNER JOIN pg_namespace nsp\n" +
+                "                                        ON nsp.oid = typ.typnamespace\n" +
+                "                        WHERE nsp.nspname = current_schema()\n" +
+                "                              AND typ.typname = 'product') THEN\n" +
+                "    CREATE TYPE PRODUCT AS (name TEXT, photo TEXT, companyid integer, productid integer, price integer, count integer, description TEXT);" +
+                "  END IF;\n" +
+                "END;\n" +
+                "$$\n" +
+                "LANGUAGE plpgsql;");
         statement.execute("CREATE TABLE IF NOT EXISTS users (\n" +
-                "    id      INTEGER PRIMARY KEY AUTOINCREMENT\n" +
+                "    id      SERIAL PRIMARY KEY\n" +
                 "                    NOT NULL,\n" +
-                "    email   STRING  UNIQUE ON CONFLICT FAIL\n" +
+                "    email   TEXT  UNIQUE\n" +
                 "                    NOT NULL,\n" +
-                "    name    STRING  NOT NULL,\n" +
-                "    surname STRING  NOT NULL,\n" +
-                "    phone   STRING,\n" +
-                "    city    STRING  NOT NULL,\n" +
-                "    country STRING  NOT NULL,\n" +
-                "    street  STRING  NOT NULL,\n" +
-                "    house   STRING  NOT NULL,\n" +
-                "    flat    STRING  NOT NULL\n" +
+                "    name    TEXT  NOT NULL,\n" +
+                "    password    TEXT  NOT NULL,\n" +
+                "    surname TEXT  NOT NULL,\n" +
+                "    phone   TEXT,\n" +
+                "    city    TEXT  NOT NULL,\n" +
+                "    country TEXT  NOT NULL,\n" +
+                "    street  TEXT  NOT NULL,\n" +
+                "    house   TEXT  NOT NULL,\n" +
+                "    flat    TEXT  NOT NULL,\n" +
+                "    products    PRODUCT[]  \n" +
                 ");\n");
     }
 }

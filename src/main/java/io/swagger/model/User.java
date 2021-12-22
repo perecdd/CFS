@@ -13,11 +13,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Profile user with address and basket of products
+ * User
  */
-@Schema(description = "Profile user with address and basket of products")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T16:27:40.021Z[GMT]")
 
 
 public class User   {
@@ -42,6 +41,9 @@ public class User   {
 
   @JsonProperty("id")
   private Integer id = null;
+
+  @JsonProperty("password")
+  private String password = null;
 
   public User name(String name) {
     this.name = name;
@@ -189,6 +191,25 @@ public class User   {
     this.id = id;
   }
 
+  public User password(String password) {
+    this.password = password;
+    return this;
+  }
+
+  /**
+   * Get password
+   * @return password
+   **/
+  @Schema(description = "")
+  
+    public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -205,12 +226,13 @@ public class User   {
         Objects.equals(this.address, user.address) &&
         Objects.equals(this.phone, user.phone) &&
         Objects.equals(this.email, user.email) &&
-        Objects.equals(this.id, user.id);
+        Objects.equals(this.id, user.id) &&
+        Objects.equals(this.password, user.password);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, surname, basket, address, phone, email, id);
+    return Objects.hash(name, surname, basket, address, phone, email, id, password);
   }
 
   @Override
@@ -225,6 +247,7 @@ public class User   {
     sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    password: ").append(toIndentedString(password)).append("\n");
     sb.append("}");
     return sb.toString();
   }

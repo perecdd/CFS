@@ -2,6 +2,7 @@ package io.swagger.api;
 
 import io.swagger.model.Product;
 import io.swagger.model.UserBody;
+import io.swagger.model.UserBody1;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +13,11 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.postgresql.core.Query;
+import org.postgresql.jdbc.PgArray;
+import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,11 +36,12 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T15:07:17.781Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-12-20T16:27:40.021Z[GMT]")
 @RestController
 public class UserApiController implements UserApi {
 
@@ -54,42 +61,96 @@ public class UserApiController implements UserApi {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
-                return new ResponseEntity<List<Product>>(objectMapper.readValue("[ {\n  \"companyid\" : 0,\n  \"productid\" : 6,\n  \"price\" : 1,\n  \"name\" : \"name\",\n  \"count\" : 5,\n  \"description\" : \"description\",\n  \"Photo\" : \"Photo\"\n}, {\n  \"companyid\" : 0,\n  \"productid\" : 6,\n  \"price\" : 1,\n  \"name\" : \"name\",\n  \"count\" : 5,\n  \"description\" : \"description\",\n  \"Photo\" : \"Photo\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
+                try {
+                    DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
+                    ResultSet rs = DataBase.statement.getResultSet();
+
+                    if(rs.next()){
+
+                        JSONArray jsonArray = new JSONArray();
+
+                        PgArray sqlProducts = (PgArray) rs.getArray("products");
+                        ResultSet resultSet = sqlProducts.getResultSet();
+                        for(int i = 0; resultSet.next(); i++){
+                            StringBuilder sb = new StringBuilder(resultSet.getString(2));
+                            sb.delete(0, 1);
+                            sb.delete(sb.length() - 1, sb.length());
+
+                            String[] objs = sb.toString().split(",");
+
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name", objs[0]);
+                            jsonObject.put("photo", objs[1]);
+                            jsonObject.put("companyid", Integer.parseInt(objs[2]));
+                            jsonObject.put("productid", Integer.parseInt(objs[3]));
+                            jsonObject.put("price", Integer.parseInt(objs[4]));
+                            jsonObject.put("count", Integer.parseInt(objs[5]));
+                            jsonObject.put("description", objs[6]);
+                            jsonArray.add(jsonObject);
+                        }
+
+                        return new ResponseEntity<List<Product>>(objectMapper.readValue(jsonArray.toString(), List.class), HttpStatus.OK);
+                    }
+                    else{
+                        return new ResponseEntity<List<Product>>(HttpStatus.UNAUTHORIZED);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return new ResponseEntity<List<Product>>(HttpStatus.FORBIDDEN);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 log.error("Couldn't serialize response for content type application/json", e);
                 return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-
         return new ResponseEntity<List<Product>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body) {
         String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
+            ResultSet rs = DataBase.statement.getResultSet();
+
+            if(rs.next()){
+                String queue = new String();
+                queue += "ARRAY[";
+                var it = body.listIterator();
+                while(it.hasNext()){
+                    Product product = it.next();
+                    queue += "('" + product.getName() + "', '" + product.getPhoto() + "', " + product.getCompanyid() + ", " + product.getProductid() + ", " + product.getPrice() + ", " + product.getCount() + ", '" + product.getDescription() + "')::PRODUCT,";
+                }
+                queue = queue.substring(0, queue.length() - 1);
+                queue += ']';
+
+                DataBase.statement.execute("UPDATE users\n" +
+                        "   SET products = " + queue + "\n" +
+                        " WHERE email = '" + email + "' AND \n" +
+                        "       password = '" + password + "';");
+            }
+            else{
+                return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body) {
+    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody1 body) {
         String accept = request.getHeader("Accept");
         try {
-            DataBase.statement.execute("SELECT id,\n" +
-                    "       email,\n" +
-                    "       name,\n" +
-                    "       surname,\n" +
-                    "       phone,\n" +
-                    "       city,\n" +
-                    "       country,\n" +
-                    "       street,\n" +
-                    "       house,\n" +
-                    "       flat\n" +
-                    "  FROM users WHERE email == '" + body.getEmail() + "';");
+            DataBase.statement.execute("SELECT * FROM users WHERE email = '" + body.getEmail() + "';");
             ResultSet rs = DataBase.statement.getResultSet();
 
             if(!rs.next()) {
-                System.out.println("Add User to DB");
                 DataBase.statement.execute("INSERT INTO users (\n" +
                         "                      email,\n" +
                         "                      name,\n" +
+                        "                      password,\n" +
                         "                      surname,\n" +
                         "                      phone,\n" +
                         "                      city,\n" +
@@ -101,6 +162,7 @@ public class UserApiController implements UserApi {
                         "                  VALUES (\n" +
                         "                      '" + body.getEmail() + "',\n" +
                         "                      '" + body.getName() + "',\n" +
+                        "                      '" + body.getPassword() + "',\n" +
                         "                      '" + body.getSurname() + "',\n" +
                         "                      '" + body.getPhone() + "',\n" +
                         "                      '" + body.getAddress().getCity() + "',\n" +
@@ -121,9 +183,59 @@ public class UserApiController implements UserApi {
         return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="phone", required=false) String phone,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="city", required=false) String city,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="country", required=false) String country,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="house", required=false) String house,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="flat", required=false) String flat,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new email", required=false) String newEmail,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="new password", required=false) String newPassword) {
+    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body) {
         String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
+            ResultSet rs = DataBase.statement.getResultSet();
+
+            if(rs.next()) {
+                String queue = new String();
+                if(body.getEmail() != null){
+                    queue += "email = '" + body.getEmail() + "'\n,";
+                }
+                else{
+                    queue += "email = '" + email + "'\n,";
+                }
+                if(body.getName() != null){
+                    queue += "name = '" + body.getName() + "'\n,";
+                }
+                if(body.getPassword() != null){
+                    queue += "password = '" + body.getPassword() + "'\n,";
+                }
+                else{
+                    queue += "password = '" + password + "'\n,";
+                }
+                if(body.getSurname() != null){
+                    queue += "surname = '" + body.getSurname() + "'\n,";
+                }
+                if(body.getPhone() != null){
+                    queue += "phone = '" + body.getPhone() + "'\n,";
+                }
+                if(body.getAddress() != null){
+                    queue +="city = '" + body.getAddress().getCity() + "'\n," +
+                            "country = '" + body.getAddress().getCountry() + "'\n," +
+                            "street = '" + body.getAddress().getStreet() + "'\n," +
+                            "house = '" + body.getAddress().getHouse() + "'\n," +
+                            "flat = '" + body.getAddress().getFlat() + "'\n";
+                }
+
+                queue = queue.substring(0, queue.length() - 1);
+
+                DataBase.statement.execute("UPDATE users\n" +
+                        "   SET id = " + rs.getString("id") + ",\n" + queue +
+                        " WHERE email = '" + email + "' AND \n" +
+                        "       password = '" + password + "';");
+            }
+            else{
+                return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 
 }
