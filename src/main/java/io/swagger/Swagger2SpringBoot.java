@@ -15,7 +15,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
+import io.swagger.api.ShopOwnerSide;
 @SpringBootApplication
 @EnableOpenApi
 @ComponentScan(basePackages = { "io.swagger", "io.swagger.api" , "io.swagger.configuration"})
@@ -30,6 +30,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {
         new DataBase();
+        new ShopOwnerSide();
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
 

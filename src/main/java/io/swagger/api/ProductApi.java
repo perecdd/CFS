@@ -56,9 +56,8 @@ public interface ProductApi {
         
         @ApiResponse(responseCode = "401", description = "Unauthorized") })
     @RequestMapping(value = "/product",
-        consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "User ID" ,required=true,schema=@Schema()) @RequestHeader(value="UserID", required=true) Integer userID, @Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody User body);
+    ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
 
 }
 

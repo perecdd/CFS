@@ -1,5 +1,6 @@
 package io.swagger.api;
 
+import io.swagger.model.Address;
 import io.swagger.model.Product;
 import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,9 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.postgresql.jdbc.PgArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,8 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,20 +57,100 @@ public class ProductApiController implements ProductApi {
 
     public ResponseEntity<List<Product>> getProduct(@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="name", required=false) String name,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="minPrice", required=false) Integer minPrice,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="maxPrice", required=false) Integer maxPrice,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="companyID", required=false) Integer companyID,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="count", required=false) Integer count,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="productID", required=false) Integer productID) {
         String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Product>>(objectMapper.readValue("[ {\n  \"companyid\" : 0,\n  \"productid\" : 6,\n  \"price\" : 1,\n  \"name\" : \"name\",\n  \"count\" : 5,\n  \"description\" : \"description\",\n  \"Photo\" : \"Photo\"\n}, {\n  \"companyid\" : 0,\n  \"productid\" : 6,\n  \"price\" : 1,\n  \"name\" : \"name\",\n  \"count\" : 5,\n  \"description\" : \"description\",\n  \"Photo\" : \"Photo\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
 
-        return new ResponseEntity<List<Product>>(HttpStatus.NOT_IMPLEMENTED);
+        JSONObject jsonObject = new JSONObject();
+        if(name != null) jsonObject.put("name", name);
+        if(minPrice != null) jsonObject.put("minPrice", minPrice);
+        if(maxPrice != null) jsonObject.put("maxPrice", maxPrice);
+        if(companyID != null) jsonObject.put("companyID", companyID);
+        if(count != null) jsonObject.put("count", count);
+        if(productID != null) jsonObject.put("productID", productID);
+
+        JSONObject info = ShopOwnerSide.GET(jsonObject, "/storage");
+
+        try {
+            return new ResponseEntity<List<Product>>(objectMapper.readValue(info.get("products").toString(), List.class), HttpStatus.OK);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    public ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "User ID" ,required=true,schema=@Schema()) @RequestHeader(value="UserID", required=true) Integer userID,@Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody User body) {
+    public ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
+        try {
+            DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
+            ResultSet resultSet = DataBase.statement.getResultSet();
+
+            if(resultSet.next()){
+                JSONObject user = new JSONObject();
+                user.put("name", resultSet.getString("name"));
+                user.put("surname", resultSet.getString("surname"));
+                user.put("password", resultSet.getString("password"));
+                user.put("phone", resultSet.getString("phone"));
+                user.put("id", resultSet.getInt("id"));
+                user.put("email", resultSet.getString("email"));
+
+                JSONObject address = new JSONObject();
+                //Address address1 = body.getAddress();
+                address.put("city", resultSet.getString("city"));
+                address.put("country", resultSet.getString("country"));
+                address.put("flat", resultSet.getString("flat"));
+                address.put("house", resultSet.getString("house"));
+                address.put("street", resultSet.getString("street"));
+
+                user.put("address", address);
+
+                JSONArray basket = new JSONArray();
+
+                PgArray sqlProducts = (PgArray) resultSet.getArray("products");
+                ResultSet rs = sqlProducts.getResultSet();
+                for(int i = 0; resultSet.next(); i++){
+                    StringBuilder sb = new StringBuilder(rs.getString(2));
+                    sb.delete(0, 1);
+                    sb.delete(sb.length() - 1, sb.length());
+
+                    String[] objs = sb.toString().split(",");
+
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("name", objs[0]);
+                    jsonObject.put("photo", objs[1]);
+                    jsonObject.put("companyid", Integer.parseInt(objs[2]));
+                    jsonObject.put("productid", Integer.parseInt(objs[3]));
+                    jsonObject.put("price", Integer.parseInt(objs[4]));
+                    jsonObject.put("count", Integer.parseInt(objs[5]));
+                    jsonObject.put("description", objs[6]);
+                    basket.add(jsonObject);
+                }
+
+                /*List<Product> products = body.getBasket();
+                var iter = products.listIterator();
+                while(iter.hasNext()){
+                    Product product = iter.next();
+                    JSONObject productJSON = new JSONObject();
+                    productJSON.put("Photo", product.getPhoto());
+                    productJSON.put("companyid", product.getCompanyid());
+                    productJSON.put("count", product.getCount());
+                    productJSON.put("description", product.getDescription());
+                    productJSON.put("name", product.getName());
+                    productJSON.put("price", product.getPrice());
+                    productJSON.put("productid", product.getProductid());
+                    basket.add(productJSON);
+                }*/
+
+                user.put("basket", basket);
+
+                ShopOwnerSide.POST(user.toString(), "/order");
+                return new ResponseEntity<Void>(HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
