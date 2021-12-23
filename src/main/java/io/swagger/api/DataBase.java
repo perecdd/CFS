@@ -8,11 +8,10 @@ public class DataBase {
 
     public DataBase() throws Exception {
         Class.forName("org.postgresql.Driver");
-        //connection = DriverManager.getConnection("jdbc:sqlite:UsersDB");
         StringBuilder url = new StringBuilder();
         url.
                 append("jdbc:postgresql://").  //db type
-                append("localhost:").          //host name
+                append("postgres:").          //host name
                 append("5432/").               //port
                 append("postgres?").             //db name
                 append("user=postgres&").      //login

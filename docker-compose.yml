@@ -1,0 +1,39 @@
+services:
+  app:
+    image:
+      ubuntu:22.04
+    build:
+      context: . .
+      dockerfile: ./Dockerfile
+    command:
+      java -jar ./swagger-spring-1.0.0.jar
+    ports:
+      - "3939:3939"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /usr/src/mymaven
+    networks:
+      - postgres-compose-network
+
+  postgres:
+    networks:
+      - postgres-compose-network
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+networks:
+  postgres-compose-network:
+    driver: bridge

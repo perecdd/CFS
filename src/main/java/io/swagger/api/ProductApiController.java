@@ -93,7 +93,6 @@ public class ProductApiController implements ProductApi {
                 user.put("email", resultSet.getString("email"));
 
                 JSONObject address = new JSONObject();
-                //Address address1 = body.getAddress();
                 address.put("city", resultSet.getString("city"));
                 address.put("country", resultSet.getString("country"));
                 address.put("flat", resultSet.getString("flat"));
@@ -106,7 +105,7 @@ public class ProductApiController implements ProductApi {
 
                 PgArray sqlProducts = (PgArray) resultSet.getArray("products");
                 ResultSet rs = sqlProducts.getResultSet();
-                for(int i = 0; resultSet.next(); i++){
+                for(int i = 0; rs.next(); i++){
                     StringBuilder sb = new StringBuilder(rs.getString(2));
                     sb.delete(0, 1);
                     sb.delete(sb.length() - 1, sb.length());
@@ -123,21 +122,6 @@ public class ProductApiController implements ProductApi {
                     jsonObject.put("description", objs[6]);
                     basket.add(jsonObject);
                 }
-
-                /*List<Product> products = body.getBasket();
-                var iter = products.listIterator();
-                while(iter.hasNext()){
-                    Product product = iter.next();
-                    JSONObject productJSON = new JSONObject();
-                    productJSON.put("Photo", product.getPhoto());
-                    productJSON.put("companyid", product.getCompanyid());
-                    productJSON.put("count", product.getCount());
-                    productJSON.put("description", product.getDescription());
-                    productJSON.put("name", product.getName());
-                    productJSON.put("price", product.getPrice());
-                    productJSON.put("productid", product.getProductid());
-                    basket.add(productJSON);
-                }*/
 
                 user.put("basket", basket);
 
