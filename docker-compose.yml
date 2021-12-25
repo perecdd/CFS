@@ -1,39 +1,45 @@
 services:
-  app:
-    image:
-      ubuntu:22.04
+  cfs:
     build:
       context: . .
       dockerfile: ./Dockerfile
-    command:
-      java -jar ./swagger-spring-1.0.0.jar
     ports:
       - "3939:3939"
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
+    networks:
+      - shared-network
+      - postgres-network
     volumes:
-      - /usr/src/mymaven
-    networks:
-      - postgres-compose-network
+      - /volumes/cfs
 
-  postgres:
+  db:
+    container_name: db
     networks:
-      - postgres-compose-network
+      - postgres-network
     image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: "postgres"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "db"
+      POSTGRES_USER: "db"
+      POSTGRES_PASSWORD: "db"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      PG_TRUST_LOCALNET: 1
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "db", "-U", "db" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 networks:
-  postgres-compose-network:
+  postgres-network:
     driver: bridge
+  shared-network:
+    external: true
+volumes:
+  pgdata:

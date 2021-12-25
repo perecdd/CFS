@@ -1,4 +1,3 @@
-FROM openjdk:11
-COPY ./target/swagger-spring-1.0.0.jar /tmp
-WORKDIR /tmp
-#ENTRYPOINT ["java -jar","./swagger-spring-1.0.0.jar"]
+FROM openjdk:14-jdk-alpine
+COPY target/swagger-spring-1.0.0.jar cfs/swagger-spring-1.0.0.jar
+ENTRYPOINT ["java","-jar","/cfs/swagger-spring-1.0.0.jar"]

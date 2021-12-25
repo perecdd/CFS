@@ -11,11 +11,11 @@ public class DataBase {
         StringBuilder url = new StringBuilder();
         url.
                 append("jdbc:postgresql://").  //db type
-                append("postgres:").          //host name
+                append("db:").          //host name
                 append("5432/").               //port
-                append("postgres?").             //db name
-                append("user=postgres&").      //login
-                append("password=postgres");     //password
+                append("db?").             //db name
+                append("user=db&").      //login
+                append("password=db");     //password
 
         connection = DriverManager.getConnection(url.toString());
         statement = connection.createStatement();
@@ -33,6 +33,7 @@ public class DataBase {
                 "END;\n" +
                 "$$\n" +
                 "LANGUAGE plpgsql;");
+
         statement.execute("CREATE TABLE IF NOT EXISTS users (\n" +
                 "    id      SERIAL PRIMARY KEY\n" +
                 "                    NOT NULL,\n" +
