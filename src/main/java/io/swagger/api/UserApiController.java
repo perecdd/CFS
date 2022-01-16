@@ -1,6 +1,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Product;
+import io.swagger.model.User;
 import io.swagger.model.UserBody;
 import io.swagger.model.UserBody1;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,46 @@ public class UserApiController implements UserApi {
         this.request = request;
     }
 
+    public ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
+        String accept = request.getHeader("Accept");
+        if(email != null && password != null){
+            try {
+                DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
+                ResultSet rs = DataBase.statement.getResultSet();
+
+                if(rs.next()){
+                    JSONObject userObject = new JSONObject();
+                    JSONObject address = new JSONObject();
+                    address.put("city", rs.getString("city"));
+                    address.put("country", rs.getString("country"));
+                    address.put("flat", rs.getString("flat"));
+                    address.put("house", rs.getString("house"));
+                    address.put("street", rs.getString("street"));
+                    userObject.put("address", address);
+                    userObject.put("email", rs.getString("email"));
+                    userObject.put("id", rs.getInt("id"));
+                    userObject.put("name", rs.getString("name"));
+                    userObject.put("password", rs.getString("password"));
+                    userObject.put("phone", rs.getString("phone"));
+                    userObject.put("surname", rs.getString("surname"));
+                    userObject.put("basket", new JSONArray());
+
+                    return new ResponseEntity<User>(objectMapper.readValue(userObject.toString(), User.class), HttpStatus.OK);
+                }
+                else{
+                    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+            }
+        }
+        else {
+            return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     public ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
@@ -66,12 +107,12 @@ public class UserApiController implements UserApi {
                     ResultSet rs = DataBase.statement.getResultSet();
 
                     if(rs.next()){
-
                         JSONArray jsonArray = new JSONArray();
 
                         PgArray sqlProducts = (PgArray) rs.getArray("products");
-                        ResultSet resultSet = sqlProducts.getResultSet();
-                        for(int i = 0; resultSet.next(); i++){
+                        ResultSet resultSet = null;
+                        if(sqlProducts != null) resultSet = sqlProducts.getResultSet();
+                        for(int i = 0; sqlProducts != null && resultSet.next(); i++){
                             StringBuilder sb = new StringBuilder(resultSet.getString(2));
                             sb.delete(0, 1);
                             sb.delete(sb.length() - 1, sb.length());
@@ -79,16 +120,15 @@ public class UserApiController implements UserApi {
                             String[] objs = sb.toString().split(",");
 
                             JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("name", objs[0]);
-                            jsonObject.put("photo", objs[1]);
+                            jsonObject.put("name", objs[0].replace("\"", ""));
+                            jsonObject.put("Photo", objs[1].replace("\"", ""));
                             jsonObject.put("companyid", Integer.parseInt(objs[2]));
                             jsonObject.put("productid", Integer.parseInt(objs[3]));
                             jsonObject.put("price", Integer.parseInt(objs[4]));
                             jsonObject.put("count", Integer.parseInt(objs[5]));
-                            jsonObject.put("description", objs[6]);
+                            jsonObject.put("description", objs[6].replace("\"", ""));
                             jsonArray.add(jsonObject);
                         }
-
                         return new ResponseEntity<List<Product>>(objectMapper.readValue(jsonArray.toString(), List.class), HttpStatus.OK);
                     }
                     else{
@@ -109,11 +149,20 @@ public class UserApiController implements UserApi {
 
     public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body) {
         String accept = request.getHeader("Accept");
+
         try {
             DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
             ResultSet rs = DataBase.statement.getResultSet();
 
             if(rs.next()){
+                if(body.isEmpty()) {
+                    DataBase.statement.execute("UPDATE users\n" +
+                            "   SET products = ARRAY[]::PRODUCT[] " +
+                            " WHERE email = '" + email + "' AND \n" +
+                            "       password = '" + password + "';");
+                    return new ResponseEntity<Void>(HttpStatus.OK);
+                }
+
                 String queue = new String();
                 queue += "ARRAY[";
                 var it = body.listIterator();
@@ -123,6 +172,8 @@ public class UserApiController implements UserApi {
                 }
                 queue = queue.substring(0, queue.length() - 1);
                 queue += ']';
+
+                System.out.println(queue);
 
                 DataBase.statement.execute("UPDATE users\n" +
                         "   SET products = " + queue + "\n" +
@@ -235,7 +286,7 @@ public class UserApiController implements UserApi {
             e.printStackTrace();
             return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Void>(HttpStatus.CREATED);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
 }

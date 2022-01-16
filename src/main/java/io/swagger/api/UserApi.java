@@ -6,6 +6,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Product;
+import io.swagger.model.User;
 import io.swagger.model.UserBody;
 import io.swagger.model.UserBody1;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,16 @@ public interface UserApi {
         method = RequestMethod.GET)
     ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
 
+    @Operation(summary = "Your GET endpoint", description = "Get all information about user", tags={  })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+
+            @ApiResponse(responseCode = "401", description = "Unauthorized") })
+    @RequestMapping(value = "/user/profile",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
+
 
     @Operation(summary = "", description = "update user backet", tags={  })
     @ApiResponses(value = { 
@@ -56,9 +67,9 @@ public interface UserApi {
         @ApiResponse(responseCode = "400", description = "Bad Request"),
         
         @ApiResponse(responseCode = "401", description = "Unauthorized") })
-    @RequestMapping(value = "/user",
+    @RequestMapping(value = "/user/patch",
         consumes = { "application/json" }, 
-        method = RequestMethod.PATCH)
+        method = RequestMethod.POST)
     ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body);
 
 

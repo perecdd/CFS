@@ -113,20 +113,28 @@ public class ProductApiController implements ProductApi {
                     String[] objs = sb.toString().split(",");
 
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("name", objs[0]);
-                    jsonObject.put("photo", objs[1]);
+                    jsonObject.put("name", objs[0].replaceAll("\"", ""));
+                    jsonObject.put("Photo", objs[1].replaceAll("\"", ""));
                     jsonObject.put("companyid", Integer.parseInt(objs[2]));
                     jsonObject.put("productid", Integer.parseInt(objs[3]));
                     jsonObject.put("price", Integer.parseInt(objs[4]));
                     jsonObject.put("count", Integer.parseInt(objs[5]));
-                    jsonObject.put("description", objs[6]);
+                    jsonObject.put("description", objs[6].replaceAll("\"", ""));
                     basket.add(jsonObject);
                 }
 
                 user.put("basket", basket);
 
-                ShopOwnerSide.POST(user.toString(), "/order");
-                return new ResponseEntity<Void>(HttpStatus.OK);
+                if(ShopOwnerSide.POST(user.toString(), "/order")) {
+                    DataBase.statement.execute("UPDATE users\n" +
+                            "   SET products = ARRAY[]::PRODUCT[] " +
+                            " WHERE email = '" + email + "' AND \n" +
+                            "       password = '" + password + "';");
+                    return new ResponseEntity<Void>(HttpStatus.OK);
+                }
+                else{
+                    return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+                }
             }
             else{
                 return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);

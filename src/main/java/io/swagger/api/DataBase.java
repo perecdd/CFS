@@ -11,11 +11,18 @@ public class DataBase {
         StringBuilder url = new StringBuilder();
         url.
                 append("jdbc:postgresql://").  //db type
+                append("localhost:").          //host name
+                append("5432/").               //port
+                append("postgres?").             //db name
+                append("user=postgres&").      //login
+                append("password=postgres");     //password
+        // TODO: REMAKE
+        /*                append("jdbc:postgresql://").  //db type
                 append("db:").          //host name
                 append("5432/").               //port
                 append("db?").             //db name
                 append("user=db&").      //login
-                append("password=db");     //password
+                append("password=db");     //password*/
 
         connection = DriverManager.getConnection(url.toString());
         statement = connection.createStatement();
