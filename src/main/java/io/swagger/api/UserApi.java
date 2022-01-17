@@ -39,28 +39,28 @@ import java.util.Map;
 @Validated
 public interface UserApi {
 
-    @Operation(summary = "Your GET endpoint", description = "Get user products basket", tags={  })
+    @Operation(summary = "Gets the user's products.", description = "The request returns all the products that are currently in the user's cart.", tags={  })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        
-        @ApiResponse(responseCode = "401", description = "Unauthorized") })
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "400", description = "Bad Request")})
     @RequestMapping(value = "/user",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
+    ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
 
-    @Operation(summary = "Your GET endpoint", description = "Get all information about user", tags={  })
+    @Operation(summary = "Retrieves user information.", description = "The request allows you to get all the information specified by the user in the profile. Used to fill in the user profile on the site.", tags={  })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = User.class)))),
-
-            @ApiResponse(responseCode = "401", description = "Unauthorized") })
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad Request") })
     @RequestMapping(value = "/user/profile",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
+    ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password);
 
 
-    @Operation(summary = "", description = "update user backet", tags={  })
+    @Operation(summary = "Update user backet", description = "The request fills the basket with the specified products, the old ones are removed from the basket. If the array in the request is empty, then the bucket will be empty accordingly.", tags={  })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "OK"),
         
@@ -70,10 +70,10 @@ public interface UserApi {
     @RequestMapping(value = "/user/patch",
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body);
+    ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "New user basket", schema=@Schema()) @Valid @RequestBody List<Product> body);
 
 
-    @Operation(summary = "", description = "Create new user", tags={  })
+    @Operation(summary = "Create new user", description = "The request creates a new user in the database with the specified parameters.", tags={  })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "201", description = "Created"),
         
@@ -81,20 +81,18 @@ public interface UserApi {
     @RequestMapping(value = "/user",
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody1 body);
+    ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "Basic user information.", schema=@Schema()) @Valid @RequestBody UserBody1 body);
 
 
-    @Operation(summary = "", description = "Update user information", tags={  })
+    @Operation(summary = "Updates user information", description = "Finds the user by password and email in the database and updates all the information specified in the request.", tags={  })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "OK"),
         
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        
-        @ApiResponse(responseCode = "403", description = "Forbidden") })
+        @ApiResponse(responseCode = "401", description = "Unauthorized")})
     @RequestMapping(value = "/user",
         consumes = { "application/json" }, 
         method = RequestMethod.PUT)
-    ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body);
+    ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "New user information.", schema=@Schema()) @Valid @RequestBody UserBody body);
 
 }
 

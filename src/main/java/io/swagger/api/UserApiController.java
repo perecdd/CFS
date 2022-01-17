@@ -58,7 +58,7 @@ public class UserApiController implements UserApi {
         this.request = request;
     }
 
-    public ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
+    public ResponseEntity<User> getUserProfileInfo(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
         if(email != null && password != null){
             try {
@@ -98,7 +98,7 @@ public class UserApiController implements UserApi {
         }
     }
 
-    public ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
+    public ResponseEntity<List<Product>> getUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -136,18 +136,18 @@ public class UserApiController implements UserApi {
                     }
                 }catch (Exception e){
                     e.printStackTrace();
-                    return new ResponseEntity<List<Product>>(HttpStatus.FORBIDDEN);
+                    return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity<List<Product>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<Product>>(HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody List<Product> body) {
+    public ResponseEntity<Void> patchUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "New user basket", schema=@Schema()) @Valid @RequestBody List<Product> body) {
         String accept = request.getHeader("Accept");
 
         try {
@@ -191,7 +191,7 @@ public class UserApiController implements UserApi {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody1 body) {
+    public ResponseEntity<Void> postUser(@Parameter(in = ParameterIn.DEFAULT, description = "Basic user information.", schema=@Schema()) @Valid @RequestBody UserBody1 body) {
         String accept = request.getHeader("Accept");
         try {
             DataBase.statement.execute("SELECT * FROM users WHERE email = '" + body.getEmail() + "';");
@@ -234,7 +234,7 @@ public class UserApiController implements UserApi {
         return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "Like nickname" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "To authentificate user" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody UserBody body) {
+    public ResponseEntity<Void> putUser(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password, @Parameter(in = ParameterIn.DEFAULT, description = "New user information.", schema=@Schema()) @Valid @RequestBody UserBody body) {
         String accept = request.getHeader("Accept");
         try {
             DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");

@@ -55,7 +55,7 @@ public class ProductApiController implements ProductApi {
         this.request = request;
     }
 
-    public ResponseEntity<List<Product>> getProduct(@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="name", required=false) String name,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="minPrice", required=false) Integer minPrice,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="maxPrice", required=false) Integer maxPrice,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="companyID", required=false) Integer companyID,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="count", required=false) Integer count,@Parameter(in = ParameterIn.HEADER, description = "" ,schema=@Schema()) @RequestHeader(value="productID", required=false) Integer productID) {
+    public ResponseEntity<List<Product>> getProduct(@Parameter(in = ParameterIn.HEADER, description = "Product name." ,schema=@Schema()) @RequestHeader(value="name", required=false) String name, @Parameter(in = ParameterIn.HEADER, description = "The minimum price of the product." ,schema=@Schema()) @RequestHeader(value="minPrice", required=false) Integer minPrice, @Parameter(in = ParameterIn.HEADER, description = "The maximum price of the product." ,schema=@Schema()) @RequestHeader(value="maxPrice", required=false) Integer maxPrice, @Parameter(in = ParameterIn.HEADER, description = "Company ID." ,schema=@Schema()) @RequestHeader(value="companyID", required=false) Integer companyID, @Parameter(in = ParameterIn.HEADER, description = "Minimum number of products." ,schema=@Schema()) @RequestHeader(value="count", required=false) Integer count, @Parameter(in = ParameterIn.HEADER, description = "Product ID." ,schema=@Schema()) @RequestHeader(value="productID", required=false) Integer productID) {
         String accept = request.getHeader("Accept");
 
         JSONObject jsonObject = new JSONObject();
@@ -77,7 +77,7 @@ public class ProductApiController implements ProductApi {
         }
     }
 
-    public ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email,@Parameter(in = ParameterIn.HEADER, description = "user password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
+    public ResponseEntity<Void> postProduct(@Parameter(in = ParameterIn.HEADER, description = "User's email" ,required=true,schema=@Schema()) @RequestHeader(value="email", required=true) String email, @Parameter(in = ParameterIn.HEADER, description = "User's password" ,required=true,schema=@Schema()) @RequestHeader(value="password", required=true) String password) {
         String accept = request.getHeader("Accept");
         try {
             DataBase.statement.execute("SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "';");
