@@ -23,7 +23,6 @@ public class ShopOwnerSide {
         try {
             URL url = new URL (ip + ":" + port + way);
             con = (HttpURLConnection)url.openConnection();
-            con.setRequestProperty("User-Agent", "ShopOwnerApplication");
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestMethod("POST");
@@ -50,7 +49,6 @@ public class ShopOwnerSide {
             URL url = new URL (ip + ":" + port + way);
 
             con = (HttpURLConnection)url.openConnection();
-            con.setRequestProperty("User-Agent", "ShopOwnerApplication");
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             con.setRequestProperty("Accept", "application/json");
 
