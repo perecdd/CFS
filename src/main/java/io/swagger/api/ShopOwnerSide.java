@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class ShopOwnerSide {
     public static String port = "15676";
-    public static String ip = "http://shopownerside"; // TODO: shopownerside
+    public static String ip = "http://shopownerside";
     public static HttpURLConnection con;
 
     public static boolean POST(String line, String way){

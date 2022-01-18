@@ -63,7 +63,15 @@ public class ProductApiController implements ProductApi {
         if(minPrice != null) jsonObject.put("minPrice", minPrice);
         if(maxPrice != null) jsonObject.put("maxPrice", maxPrice);
         if(companyID != null) jsonObject.put("companyID", companyID);
-        if(count != null) jsonObject.put("count", count);
+        if(count != null) {
+            jsonObject.put("count", count);
+        }
+        else if(count <= 0){
+            jsonObject.put("count", 1);
+        }
+        else{
+            jsonObject.put("count", count);
+        }
         if(productID != null) jsonObject.put("productID", productID);
 
         JSONObject info = ShopOwnerSide.GET(jsonObject, "/storage");
